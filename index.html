@@ -16,6 +16,9 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     
+    <!-- Canvas Confetti para celebração do final do treino -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
         :root {
             --safe-area-bottom: env(safe-area-inset-bottom, 20px);
@@ -58,6 +61,15 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Efeito Premium: Pulso Suave nos números durante o treino */
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.1); transform: scale(1); }
+            50% { text-shadow: 0 0 40px rgba(255,255,255,0.7); transform: scale(1.02); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
 
         /* Cores de Fundo para o HIIT */
         .bg-work { background-color: #166534 !important; transition: background-color 0.5s; }
@@ -294,6 +306,18 @@
             } catch(e) {}
         }
 
+        // --- NOVA FUNÇÃO PREMIUM: Treinador de Voz ---
+        function speakVoiceCoach(text) {
+            if (!isSoundOn) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Para a fala anterior para não encavalar
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR'; // Idioma
+                utterance.rate = 1.2; // Velocidade um pouco mais ágil
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         function formatTimeSW(timeInMs) {
             let date = new Date(timeInMs);
             let m = date.getUTCMinutes().toString().padStart(2, '0');
@@ -491,6 +515,8 @@
                     intSetup.classList.add('hidden');
                     intPresets.classList.add('hidden');
                     updateIntBgColor();
+                    
+                    speakVoiceCoach("Prepare-se!");
                 }
                 intUpdateUI();
                 intInterval = setInterval(intTick, 1000);
@@ -508,12 +534,20 @@
                 playBeep('long');
                 if (intState === 'prep') {
                     intState = 'work'; intTimeRemaining = intWorkSec;
+                    speakVoiceCoach("Ação!");
                 } else if (intState === 'work') {
                     if (intCurrentRound >= intTotalRounds) { intFinish(); return; }
-                    if (intRestSec > 0) { intState = 'rest'; intTimeRemaining = intRestSec; } 
-                    else { intCurrentRound++; intTimeRemaining = intWorkSec; }
+                    if (intRestSec > 0) { 
+                        intState = 'rest'; intTimeRemaining = intRestSec; 
+                        speakVoiceCoach("Descanso!");
+                    } 
+                    else { 
+                        intCurrentRound++; intTimeRemaining = intWorkSec; 
+                        speakVoiceCoach("Ação!");
+                    }
                 } else if (intState === 'rest') {
                     intState = 'work'; intCurrentRound++; intTimeRemaining = intWorkSec;
+                    speakVoiceCoach("Ação!");
                 }
                 updateIntBgColor();
             }
@@ -522,6 +556,14 @@
 
         function intUpdateUI() {
             intDisplay.innerHTML = formatTimeSimple(intTimeRemaining);
+            
+            // Adiciona/Remove a animação de pulso baseada no estado
+            if (intState === 'work' || intState === 'rest') {
+                intDisplay.classList.add('animate-pulse-glow');
+            } else {
+                intDisplay.classList.remove('animate-pulse-glow');
+            }
+
             if (intState === 'prep') {
                 intStatus.innerText = "PREPARE-SE";
                 intStatus.className = "text-2xl font-bold uppercase tracking-widest text-yellow-400";
@@ -540,11 +582,20 @@
 
         function intFinish() {
             clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); playBeep('end');
+            
+            // Celebração Premium e Fala Final
+            speakVoiceCoach("Treino concluído! Excelente trabalho!");
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.3 } });
+                setTimeout(() => confetti({ particleCount: 150, spread: 120, origin: { y: 0.4 } }), 800);
+            }
+
             intStatus.innerText = "CONCLUÍDO!";
             intStatus.className = "text-3xl font-bold uppercase tracking-widest text-emerald-400";
             intDisplay.innerHTML = "00:00"; intRoundsDisplay.innerText = "";
+            intDisplay.classList.remove('animate-pulse-glow');
             bodyBg.className = 'flex flex-col h-[100dvh] w-full transition-colors duration-500 bg-slate-900';
-            setTimeout(intResetUI, 3000);
+            setTimeout(intResetUI, 4000);
         }
 
         function intReset() {
