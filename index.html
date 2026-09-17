@@ -492,6 +492,7 @@
         let selectedOptionsPresetId = null; 
         let pressTimer; 
         let isLongPress = false;
+        let currentActivePresetId = null; /* NOVA VARIÁVEL: Guarda quem está selecionado */
 
         // Carrega os treinos salvos pelo usuário do LocalStorage
         let myPresets = JSON.parse(localStorage.getItem(STORAGE_PRESETS_KEY));
@@ -512,7 +513,14 @@
             
             myPresets.forEach(p => {
                 const btn = document.createElement('button');
-                btn.className = 'py-3 px-6 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-emerald-600 active:text-white transition whitespace-nowrap select-none shrink-0 snap-center shadow-sm';
+                
+                /* Verifica se este botão é o que está selecionado no momento */
+                if (p.id === currentActivePresetId) {
+                    btn.className = 'py-3 px-6 bg-emerald-600 text-white text-sm font-bold rounded-lg border border-emerald-500 shadow-lg shadow-emerald-900/50 scale-105 transition-all whitespace-nowrap select-none shrink-0 snap-center';
+                } else {
+                    btn.className = 'py-3 px-6 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all whitespace-nowrap select-none shrink-0 snap-center shadow-sm';
+                }
+
                 btn.innerText = p.name;
                 
                 // Lógica de "Pressionar e Segurar" (Long Press)
@@ -538,7 +546,11 @@
                 // Clique normal
                 btn.onclick = (e) => {
                     e.preventDefault();
-                    if (!isLongPress) setHiitPreset(p.work, p.rest, p.rounds);
+                    if (!isLongPress) {
+                        currentActivePresetId = p.id; /* Marca como ativo */
+                        setHiitPreset(p.work, p.rest, p.rounds);
+                        renderPresets(); /* Recarrega os botões para mostrar a nova cor */
+                    }
                 };
 
                 container.appendChild(btn);
@@ -572,11 +584,19 @@
             }
         }
 
-        // Escuta qualquer mudança nos inputs para ativar o Auto-Save
+        // Escuta qualquer mudança nos inputs para ativar o Auto-Save e remover a seleção de treino
         ['input', 'change', 'blur'].forEach(evt => {
-            document.getElementById('int-input-work').addEventListener(evt, saveLastConfigOffline);
-            document.getElementById('int-input-rest').addEventListener(evt, saveLastConfigOffline);
-            document.getElementById('int-input-rounds').addEventListener(evt, saveLastConfigOffline);
+            const handleManualInput = () => {
+                // Se a pessoa mudar o número na mão, removemos o destaque do treino
+                if (currentActivePresetId !== null) {
+                    currentActivePresetId = null;
+                    renderPresets();
+                }
+                saveLastConfigOffline();
+            };
+            document.getElementById('int-input-work').addEventListener(evt, handleManualInput);
+            document.getElementById('int-input-rest').addEventListener(evt, handleManualInput);
+            document.getElementById('int-input-rounds').addEventListener(evt, handleManualInput);
         });
 
         // === MODAL OPÇÕES (LONG PRESS) ===
@@ -672,18 +692,21 @@
             if (currentEditPresetId) {
                 const preset = myPresets.find(p => p.id === currentEditPresetId);
                 if (preset) preset.name = name;
+                currentActivePresetId = currentEditPresetId; /* Mantém o editado como ativo */
             } else {
                 const w = parseInt(document.getElementById('int-input-work').value) || 0;
                 const r = parseInt(document.getElementById('int-input-rest').value) || 0;
                 const rd = parseInt(document.getElementById('int-input-rounds').value) || 0;
                 
+                const newId = 'p_' + Date.now();
                 myPresets.push({
-                    id: 'p_' + Date.now(),
+                    id: newId,
                     name: name,
                     work: w,
                     rest: r,
                     rounds: rd
                 });
+                currentActivePresetId = newId; /* Marca o novo como ativo imediatamente */
             }
             
             localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
