@@ -2,13 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta tags cruciais para comportamento de App Nativo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     
     <title>Cronômetro Fitness Pro</title>
+    
+    <!-- Ícone da Aba do Navegador (Favicon SVG nativo) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -28,10 +31,10 @@
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
             color: #f8fafc;
-            overflow: hidden; /* Proíbe scroll na página toda */
+            overflow: hidden; 
             touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent; /* Remove piscar azul ao tocar em botões no mobile */
-            user-select: none; /* Evita selecionar texto sem querer */
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
         }
         
         .timer-display {
@@ -41,7 +44,6 @@
             line-height: 1;
         }
 
-        /* Botões de Ação Redondos e Grandes para o Dedo */
         .btn-circle {
             width: 72px;
             height: 72px;
@@ -62,7 +64,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Efeito Premium: Pulso Suave nos números durante o treino */
         @keyframes pulse-glow {
             0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.1); transform: scale(1); }
             50% { text-shadow: 0 0 40px rgba(255,255,255,0.7); transform: scale(1.02); }
@@ -71,12 +72,10 @@
             animation: pulse-glow 2s infinite ease-in-out;
         }
 
-        /* Cores de Fundo para o HIIT */
         .bg-work { background-color: #166534 !important; transition: background-color 0.5s; }
         .bg-rest { background-color: #991b1b !important; transition: background-color 0.5s; }
         .bg-prep { background-color: #ca8a04 !important; transition: background-color 0.5s; }
         
-        /* Ajuste para inputs nativos no iOS/Android (Remove as setas de números) */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -85,7 +84,7 @@
         
         input[type="number"] {
             -moz-appearance: textfield;
-            appearance: textfield; /* Propriedade moderna para evitar o aviso amarelo */
+            appearance: textfield; 
             appearance: none;
         }
     </style>
@@ -105,13 +104,11 @@
         
         <!-- ================= MODO CRONÔMETRO ================= -->
         <section id="view-stopwatch" class="absolute inset-0 flex flex-col items-center justify-between py-6 px-4">
-            
             <div class="flex-1 flex items-center justify-center w-full">
                 <div class="timer-display text-8xl md:text-9xl font-semibold text-white text-center w-full" id="sw-display">
                     00:00<span class="text-4xl text-slate-400">.00</span>
                 </div>
             </div>
-
             <div class="flex justify-around w-full max-w-sm px-4 mb-6 shrink-0">
                 <button id="sw-btn-reset-lap" onclick="swResetOrLap()" class="btn-circle bg-slate-700 text-slate-300">
                     <i id="sw-icon-reset-lap" class="fa-solid fa-flag"></i>
@@ -120,8 +117,6 @@
                     <i id="sw-icon-start-pause" class="fa-solid fa-play"></i>
                 </button>
             </div>
-
-            <!-- Lista de Voltas (Laps) - Ocupa 30% da tela na base -->
             <div class="w-full max-w-sm h-1/3 overflow-y-auto no-scrollbar border-t border-slate-700/50 pt-4 pb-2 shrink-0">
                 <ul id="sw-laps" class="w-full text-slate-300 text-lg space-y-2">
                     <li class="text-center text-slate-500 text-sm mt-4">Nenhuma volta registrada</li>
@@ -131,14 +126,10 @@
 
         <!-- ================= MODO TIMER ================= -->
         <section id="view-timer" class="absolute inset-0 flex flex-col items-center justify-between py-6 px-4 hidden opacity-0 transition-opacity">
-            
             <div class="flex-1 flex flex-col justify-center items-center w-full">
-                <!-- Display Principal -->
                 <div class="timer-display text-9xl font-semibold text-white text-center mb-8" id="tm-display">
                     05:00
                 </div>
-
-                <!-- Configuração de Tempo -->
                 <div id="tm-setup" class="flex gap-4 justify-center items-center bg-slate-800/80 backdrop-blur-sm p-5 rounded-2xl border border-slate-700 shadow-lg">
                     <div class="flex flex-col items-center">
                         <input type="number" id="tm-input-min" value="5" min="0" max="99" class="w-20 h-16 text-center bg-slate-900 text-white text-4xl font-semibold rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
@@ -151,7 +142,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="flex justify-around w-full max-w-sm px-4 mb-8 shrink-0">
                 <button id="tm-btn-reset" onclick="tmReset()" class="btn-circle bg-slate-700 text-slate-300">
                     <i class="fa-solid fa-stop"></i>
@@ -165,33 +155,29 @@
         <!-- ================= MODO INTERVALADO (HIIT) ================= -->
         <section id="view-interval" class="absolute inset-0 flex flex-col items-center justify-between py-4 px-4 hidden opacity-0 transition-opacity">
             
-            <!-- Topo: Status e Rounds -->
             <div class="w-full text-center shrink-0 mt-2">
                 <div id="int-status" class="text-2xl font-bold text-slate-400 uppercase tracking-widest">
                     CONFIGURAÇÃO
                 </div>
-                <div id="int-rounds-display" class="text-lg text-slate-300 mt-1 font-semibold h-6">
-                    <!-- Série X / Y -->
-                </div>
+                <div id="int-rounds-display" class="text-lg text-slate-300 mt-1 font-semibold h-6"></div>
             </div>
 
-            <!-- Meio: Relógio Gigante -->
             <div class="flex-1 flex items-center justify-center w-full">
                 <div class="timer-display text-[140px] leading-none font-semibold text-white w-full text-center drop-shadow-lg" id="int-display">
                     00:00
                 </div>
             </div>
 
-            <!-- Base: Configurações e Botões -->
             <div class="w-full max-w-sm shrink-0 flex flex-col items-center">
                 
-                <!-- Presets Rapidos -->
-                <div id="int-presets" class="flex justify-center space-x-2 w-full mb-4">
-                    <button onclick="setHiitPreset(45, 15, 10)" class="flex-1 py-2 bg-slate-800 text-slate-300 text-sm font-semibold rounded-lg border border-slate-700 active:bg-emerald-600 active:text-white transition">Funcional</button>
+                <!-- Área de Presets (Injetada via JS) -->
+                <div class="w-full mb-4">
+                    <div id="int-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-2 items-center w-full px-1 snap-x">
+                        <!-- Botões gerados pelo Javascript -->
+                    </div>
                 </div>
 
-                <!-- Configuração do HIIT (Consertada a quebra de layout) -->
-                <div id="int-setup" class="w-full grid grid-cols-3 gap-3 mb-6 bg-slate-800/80 backdrop-blur-sm p-4 rounded-2xl border border-slate-700 shadow-lg">
+                <div id="int-setup" class="w-full grid grid-cols-3 gap-3 mb-6 bg-slate-800/80 backdrop-blur-sm p-4 rounded-2xl border border-slate-700 shadow-lg transition-all duration-300">
                     <div class="flex flex-col items-center">
                         <label class="text-[10px] text-slate-400 mb-2 font-bold tracking-wider">AÇÃO (s)</label>
                         <input type="number" id="int-input-work" value="40" min="5" max="300" class="w-full h-12 text-center bg-slate-900 text-green-400 text-2xl font-bold rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
@@ -206,7 +192,6 @@
                     </div>
                 </div>
 
-                <!-- Botões de Controle -->
                 <div class="flex justify-around w-full px-4 mb-4">
                     <button id="int-btn-reset" onclick="intReset()" class="btn-circle bg-slate-700 text-slate-300">
                         <i class="fa-solid fa-stop"></i>
@@ -217,6 +202,40 @@
                 </div>
             </div>
         </section>
+
+        <!-- ================= MODAL SALVAR / EDITAR PRESET ================= -->
+        <div id="modal-save-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+            <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-save-preset-content">
+                <h3 class="text-white text-xl font-bold mb-1" id="modal-preset-title">Adicionar Treino</h3>
+                <p class="text-slate-400 text-xs mb-5 font-mono" id="modal-preset-details">--</p>
+                
+                <input type="text" id="input-preset-name" placeholder="Ex: Treino de Perna" maxlength="20" autocomplete="off" class="w-full bg-slate-900 text-white px-4 py-3 rounded-xl outline-none border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 mb-6 font-semibold transition-all">
+                
+                <div class="flex justify-end gap-3 w-full">
+                    <button onclick="closeModalPreset()" class="flex-1 py-3 text-slate-300 bg-slate-700 rounded-xl font-bold hover:bg-slate-600 transition">Cancelar</button>
+                    <button onclick="saveCurrentPreset()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-500 transition">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MODAL OPÇÕES (LONG PRESS) ================= -->
+        <div id="modal-options-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+            <div class="bg-slate-800 p-4 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-options-preset-content">
+                <h3 class="text-slate-400 text-sm font-semibold text-center mb-4 pb-2 border-b border-slate-700/50 uppercase tracking-widest" id="options-title">Opções</h3>
+                
+                <button onclick="triggerEditPreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-3 flex items-center justify-center gap-3 active:bg-slate-600 transition">
+                    <i class="fa-solid fa-pen text-emerald-400"></i> Renomear Treino
+                </button>
+                
+                <button onclick="triggerDeletePreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-4 flex items-center justify-center gap-3 active:bg-red-600/50 transition">
+                    <i class="fa-solid fa-trash text-red-400"></i> Excluir Treino
+                </button>
+                
+                <button onclick="closeOptionsModal()" class="w-full py-4 text-slate-300 text-lg font-bold bg-slate-900 rounded-xl active:bg-slate-950 border border-slate-700 transition">
+                    Cancelar
+                </button>
+            </div>
+        </div>
 
     </main>
 
@@ -243,9 +262,8 @@
         let wakeLock = null;
 
         async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-            } catch (err) { console.log('Wake Lock erro:', err); }
+            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); }
+            catch (err) { console.log('Wake Lock erro:', err); }
         }
 
         function releaseWakeLock() {
@@ -268,16 +286,12 @@
         const audioCtx = new AudioContext();
 
         function playBeep(type = 'short') {
-            if (!isSoundOn) {
-                if (navigator.vibrate) vibrateDevice(type);
-                return;
-            }
+            if (!isSoundOn) { if (navigator.vibrate) vibrateDevice(type); return; }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             
             if (type === 'short') {
                 osc.type = 'sine'; osc.frequency.value = 600;
@@ -304,14 +318,13 @@
             } catch(e) {}
         }
 
-        // --- NOVA FUNÇÃO PREMIUM: Treinador de Voz ---
         function speakVoiceCoach(text) {
             if (!isSoundOn) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Para a fala anterior para não encavalar
+                window.speechSynthesis.cancel(); 
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'pt-BR'; // Idioma
-                utterance.rate = 1.2; // Velocidade um pouco mais ágil
+                utterance.lang = 'pt-BR'; 
+                utterance.rate = 1.2; 
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -335,26 +348,21 @@
         function switchTab(tab) {
             const tabs = ['stopwatch', 'timer', 'interval'];
             
-            // Atualiza Bottom Navigation
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (t === tab) {
-                    btn.classList.add('text-emerald-400');
-                    btn.classList.remove('text-slate-500');
+                    btn.classList.add('text-emerald-400'); btn.classList.remove('text-slate-500');
                 } else {
-                    btn.classList.remove('text-emerald-400');
-                    btn.classList.add('text-slate-500');
+                    btn.classList.remove('text-emerald-400'); btn.classList.add('text-slate-500');
                 }
                 
-                // Transição suave de telas
                 const view = document.getElementById(`view-${t}`);
                 if (t === tab) {
                     view.classList.remove('hidden');
-                    // Pequeno delay para a animação de opacidade funcionar
                     setTimeout(() => view.classList.remove('opacity-0'), 50);
                 } else {
                     view.classList.add('opacity-0');
-                    setTimeout(() => view.classList.add('hidden'), 300); // aguarda fade out
+                    setTimeout(() => view.classList.add('hidden'), 300);
                 }
             });
 
@@ -477,17 +485,238 @@
         }
         updateTmDisplayFromInputs();
 
-        // ================= MODO INTERVALADO (HIIT) =================
-        let intWorkSec = 40, intRestSec = 20, intTotalRounds = 8, intCurrentRound = 1, intState = 'idle', intTimeRemaining = 0, intInterval = null, intIsRunning = false;
-        const intDisplay = document.getElementById('int-display'), intSetup = document.getElementById('int-setup'), intStatus = document.getElementById('int-status'), intRoundsDisplay = document.getElementById('int-rounds-display'), intBtnStartPause = document.getElementById('int-btn-start-pause'), intIconStartPause = document.getElementById('int-icon-start-pause'), bodyBg = document.getElementById('app-body'), intPresets = document.getElementById('int-presets');
+        // ================= ARMAZENAMENTO OFFLINE E PRESETS =================
+        const STORAGE_CONFIG_KEY = 'fittimer_lastConfig';
+        const STORAGE_PRESETS_KEY = 'fittimer_customPresets';
+        let currentEditPresetId = null;
+        let selectedOptionsPresetId = null; 
+        let pressTimer; 
+        let isLongPress = false;
+
+        // Carrega os treinos salvos pelo usuário do LocalStorage
+        let myPresets = JSON.parse(localStorage.getItem(STORAGE_PRESETS_KEY));
+
+        // Se for a primeira vez abrindo o app, carrega os padrões como editáveis
+        if (!myPresets || myPresets.length === 0) {
+            myPresets = [
+                { id: 'def1', name: 'Tabata', work: 20, rest: 10, rounds: 8 },
+                { id: 'def2', name: 'Funcional', work: 45, rest: 15, rounds: 10 },
+                { id: 'def3', name: 'Boxe (Round)', work: 180, rest: 60, rounds: 5 }
+            ];
+            localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
+        }
+
+        function renderPresets() {
+            const container = document.getElementById('int-presets');
+            container.innerHTML = '';
+            
+            myPresets.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'py-3 px-6 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-emerald-600 active:text-white transition whitespace-nowrap select-none shrink-0 snap-center shadow-sm';
+                btn.innerText = p.name;
+                
+                // Lógica de "Pressionar e Segurar" (Long Press)
+                const startPress = (e) => {
+                    isLongPress = false;
+                    pressTimer = setTimeout(() => {
+                        isLongPress = true;
+                        if(navigator.vibrate) navigator.vibrate(50); // Vibra para confirmar
+                        openOptionsModal(p.id, p.name);
+                    }, 500); // 500ms segurando o dedo
+                };
+                
+                const cancelPress = () => clearTimeout(pressTimer);
+
+                // Eventos Touch (Mobile) e Mouse (Computador)
+                btn.addEventListener('touchstart', startPress, {passive: true});
+                btn.addEventListener('touchend', cancelPress);
+                btn.addEventListener('touchmove', cancelPress);
+                btn.addEventListener('mousedown', startPress);
+                btn.addEventListener('mouseup', cancelPress);
+                btn.addEventListener('mouseleave', cancelPress);
+
+                // Clique normal
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    if (!isLongPress) setHiitPreset(p.work, p.rest, p.rounds);
+                };
+
+                container.appendChild(btn);
+            });
+            
+            // Botão Adicionar Novo
+            const addBtn = document.createElement('button');
+            addBtn.onclick = () => openModalPreset();
+            addBtn.className = 'py-3 px-6 bg-emerald-600/20 text-emerald-400 text-sm font-bold rounded-lg border border-emerald-600/50 active:bg-emerald-600 active:text-white transition whitespace-nowrap shrink-0 snap-center flex items-center gap-2';
+            addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Novo';
+            container.appendChild(addBtn);
+        }
+
+        // === AUTO-SAVE DA TELA PRINCIPAL ===
+        function saveLastConfigOffline() {
+            const config = {
+                work: document.getElementById('int-input-work').value,
+                rest: document.getElementById('int-input-rest').value,
+                rounds: document.getElementById('int-input-rounds').value
+            };
+            localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(config));
+        }
+
+        function loadLastConfigOffline() {
+            const saved = localStorage.getItem(STORAGE_CONFIG_KEY);
+            if(saved) {
+                const config = JSON.parse(saved);
+                if(config.work) document.getElementById('int-input-work').value = config.work;
+                if(config.rest) document.getElementById('int-input-rest').value = config.rest;
+                if(config.rounds) document.getElementById('int-input-rounds').value = config.rounds;
+            }
+        }
+
+        // Escuta qualquer mudança nos inputs para ativar o Auto-Save
+        ['input', 'change', 'blur'].forEach(evt => {
+            document.getElementById('int-input-work').addEventListener(evt, saveLastConfigOffline);
+            document.getElementById('int-input-rest').addEventListener(evt, saveLastConfigOffline);
+            document.getElementById('int-input-rounds').addEventListener(evt, saveLastConfigOffline);
+        });
+
+        // === MODAL OPÇÕES (LONG PRESS) ===
+        function openOptionsModal(id, name) {
+            if (intIsRunning) return;
+            selectedOptionsPresetId = id;
+            document.getElementById('options-title').innerText = name;
+            
+            const modal = document.getElementById('modal-options-preset');
+            const content = document.getElementById('modal-options-preset-content');
+            
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeOptionsModal() {
+            const modal = document.getElementById('modal-options-preset');
+            const content = document.getElementById('modal-options-preset-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function triggerEditPreset() {
+            closeOptionsModal();
+            setTimeout(() => openModalPreset(selectedOptionsPresetId), 300);
+        }
+
+        function triggerDeletePreset() {
+            closeOptionsModal();
+            setTimeout(() => deletePreset(selectedOptionsPresetId), 300);
+        }
+
+        // === FUNÇÕES DO MODAL (ADICIONAR / EDITAR) ===
+        function openModalPreset(id = null) {
+            if (intIsRunning) return;
+            currentEditPresetId = id;
+            
+            const w = document.getElementById('int-input-work').value || 0;
+            const r = document.getElementById('int-input-rest').value || 0;
+            const rd = document.getElementById('int-input-rounds').value || 0;
+            
+            const title = document.getElementById('modal-preset-title');
+            const details = document.getElementById('modal-preset-details');
+            const input = document.getElementById('input-preset-name');
+            
+            if (id) {
+                // Modo Edição
+                const preset = myPresets.find(p => p.id === id);
+                title.innerText = 'Renomear Treino';
+                details.innerText = `${preset.work}s Ação • ${preset.rest}s Pausa • ${preset.rounds} Séries`;
+                input.value = preset.name;
+            } else {
+                // Modo Criação
+                title.innerText = 'Salvar Novo Treino';
+                details.innerText = `${w}s Ação • ${r}s Pausa • ${rd} Séries`;
+                input.value = '';
+            }
+            
+            const modal = document.getElementById('modal-save-preset');
+            const content = document.getElementById('modal-save-preset-content');
+            
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            
+            setTimeout(() => input.focus(), 300);
+        }
+
+        function closeModalPreset() {
+            const modal = document.getElementById('modal-save-preset');
+            const content = document.getElementById('modal-save-preset-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveCurrentPreset() {
+            const input = document.getElementById('input-preset-name');
+            const name = input.value.trim();
+            
+            if(!name) {
+                input.classList.add('border-red-500', 'animate-pulse');
+                setTimeout(() => input.classList.remove('border-red-500', 'animate-pulse'), 1000);
+                return;
+            }
+            
+            if (currentEditPresetId) {
+                const preset = myPresets.find(p => p.id === currentEditPresetId);
+                if (preset) preset.name = name;
+            } else {
+                const w = parseInt(document.getElementById('int-input-work').value) || 0;
+                const r = parseInt(document.getElementById('int-input-rest').value) || 0;
+                const rd = parseInt(document.getElementById('int-input-rounds').value) || 0;
+                
+                myPresets.push({
+                    id: 'p_' + Date.now(),
+                    name: name,
+                    work: w,
+                    rest: r,
+                    rounds: rd
+                });
+            }
+            
+            localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
+            closeModalPreset();
+            renderPresets();
+            
+            if(!currentEditPresetId) {
+                setTimeout(() => {
+                    const container = document.getElementById('int-presets');
+                    container.scrollLeft = container.scrollWidth;
+                }, 300);
+            }
+        }
+
+        function deletePreset(id) {
+            myPresets = myPresets.filter(p => p.id !== id);
+            localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
+            renderPresets();
+        }
 
         function setHiitPreset(work, rest, rounds) {
             if (intIsRunning) return;
             document.getElementById('int-input-work').value = work;
             document.getElementById('int-input-rest').value = rest;
             document.getElementById('int-input-rounds').value = rounds;
+            
+            saveLastConfigOffline();
             if(navigator.vibrate) navigator.vibrate(50);
         }
+
+        // ================= MODO INTERVALADO (HIIT) =================
+        let intWorkSec = 40, intRestSec = 20, intTotalRounds = 8, intCurrentRound = 1, intState = 'idle', intTimeRemaining = 0, intInterval = null, intIsRunning = false;
+        const intDisplay = document.getElementById('int-display'), intSetup = document.getElementById('int-setup'), intStatus = document.getElementById('int-status'), intRoundsDisplay = document.getElementById('int-rounds-display'), intBtnStartPause = document.getElementById('int-btn-start-pause'), intIconStartPause = document.getElementById('int-icon-start-pause'), bodyBg = document.getElementById('app-body');
 
         function updateIntBgColor() {
             if (currentView !== 'interval') return;
@@ -510,8 +739,10 @@
                     intTotalRounds = parseInt(document.getElementById('int-input-rounds').value) || 1;
                     intState = 'prep'; intTimeRemaining = 5; intCurrentRound = 1;
                     
+                    saveLastConfigOffline(); 
+                    
                     intSetup.classList.add('hidden');
-                    intPresets.classList.add('hidden');
+                    document.getElementById('int-presets').parentElement.classList.add('hidden');
                     updateIntBgColor();
                     
                     speakVoiceCoach("Prepare-se!");
@@ -555,7 +786,6 @@
         function intUpdateUI() {
             intDisplay.innerHTML = formatTimeSimple(intTimeRemaining);
             
-            // Adiciona/Remove a animação de pulso baseada no estado
             if (intState === 'work' || intState === 'rest') {
                 intDisplay.classList.add('animate-pulse-glow');
             } else {
@@ -581,7 +811,6 @@
         function intFinish() {
             clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); playBeep('end');
             
-            // Celebração Premium e Fala Final
             speakVoiceCoach("Treino concluído! Excelente trabalho!");
             if (typeof confetti === 'function') {
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.3 } });
@@ -602,7 +831,8 @@
         }
 
         function intResetUI() {
-            intSetup.classList.remove('hidden'); intPresets.classList.remove('hidden');
+            intSetup.classList.remove('hidden'); 
+            document.getElementById('int-presets').parentElement.classList.remove('hidden');
             intBtnStartPause.classList.replace('bg-amber-600', 'bg-emerald-600');
             intIconStartPause.classList.replace('fa-pause', 'fa-play');
             intDisplay.innerHTML = "00:00";
@@ -611,7 +841,9 @@
             intRoundsDisplay.innerText = "";
         }
         
-        // Inicia na aba Cronômetro garantindo visual correto
+        // --- INICIALIZAÇÃO DA APLICAÇÃO ---
+        loadLastConfigOffline();
+        renderPresets();
         switchTab('stopwatch');
     </script>
 </body>
