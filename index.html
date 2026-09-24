@@ -8,13 +8,19 @@
     <meta name="theme-color" content="#0f172a">
     <title>FitTimer Pro</title>
     
-    <link id="manifest-link" rel="manifest" href="">
+    <!-- Conexão com o Manifest Oficial -->
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
+    <!-- Bibliotecas Externas: Confete, HTML2Canvas e SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -37,6 +43,7 @@
             user-select: none; 
         }
 
+        /* Classes dinâmicas baseadas no Tema Escolhido */
         .text-theme { color: var(--theme-light); transition: color 0.3s; }
         .bg-theme { background-color: var(--theme-dark); transition: background-color 0.3s; }
         .bg-theme:active { background-color: var(--theme-base); }
@@ -44,10 +51,24 @@
         .ring-theme:focus { --tw-ring-color: var(--theme-base); }
         .shadow-theme { box-shadow: 0 4px 15px var(--theme-dark); }
         
-        .timer-display { font-family: 'Teko', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; line-height: 1; }
+        .timer-display {
+            font-family: 'Teko', sans-serif;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
 
-        .btn-circle { border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
-        .btn-circle:active { transform: scale(0.92); }
+        .btn-circle {
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        .btn-circle:active {
+            transform: scale(0.92);
+        }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -63,14 +84,25 @@
         .bg-rest { background-color: #450a0a !important; transition: background-color 0.5s; }
         .bg-prep { background-color: #713f12 !important; transition: background-color 0.5s; }
         
+        /* Remove setas de input number */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; appearance: none; }
 
         /* Transições do Modo Foco (Tela Cheia) */
-        #app-header, #app-nav { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; }
-        body.focus-mode #app-header { transform: translateY(-120%); opacity: 0; pointer-events: none; }
-        body.focus-mode #app-nav { transform: translateY(120%); opacity: 0; pointer-events: none; }
+        #app-header, #app-nav {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+        }
+        body.focus-mode #app-header {
+            transform: translateY(-120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.focus-mode #app-nav {
+            transform: translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -79,8 +111,9 @@
     <!-- OVERLAY DE BLOQUEIO DE TELA COM SLIDER -->
     <div id="screen-lock-overlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <i class="fa-solid fa-lock text-6xl text-theme mb-6"></i>
-        <h2 class="text-white text-2xl font-black mb-10 tracking-wide">Tela Bloqueada</h2>
+        <h2 class="text-white text-2xl font-black mb-8 tracking-wide">Tela Bloqueada</h2>
         
+        <!-- Slider Deslizar para Destravar -->
         <div id="unlock-slider-container" class="relative w-72 h-16 bg-slate-900 border-2 border-slate-700 rounded-full flex items-center overflow-hidden shadow-2xl select-none">
             <div id="unlock-track-fill" class="absolute left-0 top-0 bottom-0 bg-theme/30 rounded-full w-0"></div>
             <div class="absolute w-full text-center text-slate-400 font-bold text-sm tracking-widest uppercase pointer-events-none select-none">
@@ -103,7 +136,12 @@
         <h1 class="text-2xl font-bold text-theme tracking-wide flex items-center gap-2">
             <i class="fa-solid fa-bolt"></i> FitTimer
         </h1>
-        <div class="flex gap-4">
+        <div class="flex gap-4 items-center">
+            <!-- Botão de Instalar o App (Fica oculto até o navegador validar o PWA) -->
+            <button id="btn-install-app" class="hidden bg-theme/20 text-theme border border-theme/50 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition active:scale-95 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                <i class="fa-solid fa-download"></i> Instalar
+            </button>
+
             <button id="btn-pip" onclick="togglePiP()" class="text-slate-300 hover:text-white text-xl transition-colors p-2 hidden">
                 <i class="fa-solid fa-window-restore"></i>
             </button>
@@ -118,6 +156,7 @@
 
     <main class="flex-1 w-full overflow-hidden relative">
         
+        <!-- ================= MODO CRONÔMETRO ================= -->
         <section id="view-stopwatch" class="absolute inset-0 flex flex-col items-center justify-between py-6 px-4 transition-all duration-300 transform translate-x-0 opacity-100">
             <div class="flex-1 flex items-center justify-center w-full">
                 <div class="timer-display text-[90px] sm:text-9xl font-semibold text-white text-center w-full" id="sw-display">
@@ -144,6 +183,7 @@
             </div>
         </section>
 
+        <!-- ================= MODO TIMER ================= -->
         <section id="view-timer" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
             
             <div class="flex-1 flex justify-center items-center w-full min-h-[260px] shrink-0 mb-4 mt-4">
@@ -196,6 +236,7 @@
             </div>
         </section>
 
+        <!-- ================= MODO INTERVALADO (HIIT) ================= -->
         <section id="view-interval" class="absolute inset-0 flex flex-col items-center py-4 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
             
             <div class="w-full text-center shrink-0 mb-2">
@@ -275,6 +316,7 @@
             </div>
         </section>
 
+        <!-- ================= MODO HISTÓRICO (GAMIFICAÇÃO) ================= -->
         <section id="view-history" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
             
             <!-- Gamificação: Cabeçalho com XP, Nível, Ofensiva e Escudos -->
@@ -308,6 +350,7 @@
                 </div>
             </div>
             
+            <!-- Resumo -->
             <div class="grid grid-cols-2 gap-3 w-full mb-6">
                 <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
                     <span class="text-3xl font-black text-white" id="hist-total-workouts">0</span>
@@ -319,7 +362,7 @@
                 </div>
             </div>
 
-            <!-- Gamificação: Desafio Mensal -->
+            <!-- Desafio Mensal -->
             <div class="w-full bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 mb-6 shadow-lg">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500"></i> Desafio do Mês</h3>
@@ -351,43 +394,57 @@
             </div>
         </section>
 
-        <!-- O Card agora é dinâmico via CSS/JS baseado no Tema Escolhido -->
+        <!-- ================= CARTÃO DE COMPARTILHAMENTO (NATIVO 9:16) ================= -->
         <div id="share-card-container" class="fixed -left-[4000px] top-0 pointer-events-none">
-            <div id="share-card" class="w-[600px] h-[800px] bg-slate-900 flex flex-col justify-between items-center p-12 rounded-3xl border-8 border-theme transition-colors">
-                <div class="text-center mt-6">
-                    <h1 class="text-6xl font-black text-theme mb-2 share-text-theme"><i class="fa-solid fa-bolt"></i> FitTimer Pro</h1>
-                    <p class="text-xl text-slate-300 font-semibold tracking-widest uppercase opacity-80" id="share-header-subtitle">Treino Concluído</p>
+            <!-- Tamanho fixo de 1080x1920 (Proporção Instagram Story) -->
+            <div id="share-card" class="w-[1080px] h-[1920px] bg-slate-900 flex flex-col justify-between items-center p-20 border-[24px] border-emerald-500 transition-colors bg-cover bg-center relative">
+                <!-- Overlay Escuro para Legibilidade caso tenha Foto -->
+                <div id="share-card-overlay" class="absolute inset-0 bg-slate-900 opacity-0 z-0"></div>
+
+                <div class="text-center mt-20 z-10">
+                    <h1 class="text-[110px] font-black text-emerald-500 mb-4 share-text-theme"><i class="fa-solid fa-bolt"></i> FitTimer Pro</h1>
+                    <p class="text-5xl text-white font-bold tracking-widest uppercase opacity-90 drop-shadow-lg" id="share-header-subtitle">Treino Concluído</p>
                 </div>
-                <div class="flex flex-col items-center">
-                    <div class="timer-display text-[140px] font-bold text-white leading-none shadow-black drop-shadow-2xl mb-2" id="share-time">00:00</div>
-                    <div class="bg-slate-800/80 border-2 border-slate-700/50 px-8 py-3 rounded-2xl text-3xl text-white font-bold mb-3 backdrop-blur-sm" id="share-type">Treino</div>
-                    <div class="text-lg text-slate-300 font-mono font-bold px-6 py-2 rounded-lg bg-black/20" id="share-details">--</div>
+                
+                <div class="flex flex-col items-center w-full z-10">
+                    <div class="timer-display text-[320px] font-bold text-white leading-none drop-shadow-2xl mb-8" id="share-time" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">00:00</div>
+                    <div class="bg-slate-800/80 border-4 border-white/20 px-16 py-8 rounded-[40px] text-6xl text-white font-bold mb-8 backdrop-blur-md shadow-2xl" id="share-type">Treino</div>
+                    <div class="text-4xl text-slate-200 font-mono font-bold px-12 py-6 rounded-2xl bg-black/40 backdrop-blur-sm" id="share-details">--</div>
                 </div>
-                <div class="w-full flex justify-between items-center bg-black/30 p-6 rounded-2xl border border-white/10 mb-6 backdrop-blur-md">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-fire text-4xl text-orange-400"></i>
-                        <span class="text-2xl text-white font-bold" id="share-streak">Ofensiva: 0</span>
+
+                <div class="w-full flex justify-between items-center bg-black/40 p-12 rounded-[40px] border border-white/20 mb-20 backdrop-blur-md shadow-2xl z-10">
+                    <div class="flex items-center gap-6">
+                        <i class="fa-solid fa-fire text-[80px] text-orange-400"></i>
+                        <span class="text-5xl text-white font-bold" id="share-streak">Ofensiva: 0</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-calendar-check text-4xl text-blue-400"></i>
-                        <span class="text-2xl text-white font-bold" id="share-date">12/09</span>
+                    <div class="flex items-center gap-6">
+                        <i class="fa-solid fa-calendar-check text-[80px] text-blue-400"></i>
+                        <span class="text-5xl text-white font-bold" id="share-date">12/09</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal Compartilhamento e Escolha de Tema -->
+        <!-- ================= MODAIS ================= -->
+        <!-- Modal Compartilhamento e Escolha de Tema/Foto -->
         <div id="modal-share-options" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-6 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col items-center" id="modal-share-options-content">
                 <h3 class="text-white text-xl font-bold mb-4">Compartilhar Treino</h3>
                 
                 <!-- Mini Preview Visual do Tema -->
-                <div id="mini-share-preview" class="w-full h-32 rounded-xl border-4 border-emerald-500 bg-slate-900 flex flex-col items-center justify-center mb-5 transition-colors">
-                    <i class="fa-solid fa-bolt text-emerald-500 text-3xl mb-2" id="mini-share-icon"></i>
-                    <span class="text-white font-bold text-2xl font-mono" id="mini-share-time">00:00</span>
+                <div id="mini-share-preview" class="w-full h-32 rounded-xl border-4 border-emerald-500 bg-slate-900 flex flex-col items-center justify-center mb-4 transition-colors relative overflow-hidden bg-cover bg-center">
+                    <div id="mini-share-overlay" class="absolute inset-0 bg-slate-900 opacity-0 z-0"></div>
+                    <i class="fa-solid fa-bolt text-emerald-500 text-3xl mb-2 z-10" id="mini-share-icon"></i>
+                    <span class="text-white font-bold text-2xl font-mono z-10 drop-shadow-md" id="mini-share-time">00:00</span>
                 </div>
 
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Escolha o Tema</p>
+                <!-- Botão de Upload de Imagem -->
+                <input type="file" id="share-bg-upload" accept="image/*" class="hidden">
+                <button id="btn-upload-bg" class="w-full py-3 mb-5 bg-slate-700/50 text-white text-sm font-semibold border border-slate-600 rounded-xl hover:bg-slate-600 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Usar Foto de Fundo
+                </button>
+
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Escolha as Cores</p>
                 <div class="flex gap-3 mb-6 w-full justify-center">
                     <button onclick="setShareTheme('default')" class="w-10 h-10 rounded-full bg-slate-900 border-2 border-emerald-500 ring-2 ring-emerald-500/50 shadow-lg focus:outline-none"></button>
                     <button onclick="setShareTheme('fire')" class="w-10 h-10 rounded-full bg-red-950 border-2 border-orange-500 hover:ring-2 ring-orange-500/50 shadow-lg focus:outline-none"></button>
@@ -528,16 +585,9 @@
     <video id="pip-video" class="hidden" muted playsinline autoplay></video>
 
     <script>
-        const manifest = {
-            name: "FitTimer Pro", short_name: "FitTimer", display: "standalone",
-            background_color: "#0f172a", theme_color: "#0f172a",
-            icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" }]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-        document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
-        
+        // ================= PWA SETUP =================
         const swCode = `
-            const CACHE_NAME = 'fittimer-pwa-v4';
+            const CACHE_NAME = 'fittimer-pwa-v6';
             self.addEventListener('install', e => self.skipWaiting());
             self.addEventListener('activate', e => self.clients.claim());
             self.addEventListener('fetch', e => {
@@ -555,6 +605,29 @@
         const swBlob = new Blob([swCode], { type: 'application/javascript' });
         if ('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
 
+        // ================= INSTALAÇÃO PWA =================
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('btn-install-app').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-install-app').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') showToast("Instalação iniciada!");
+                deferredPrompt = null;
+                document.getElementById('btn-install-app').classList.add('hidden');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('btn-install-app').classList.add('hidden');
+            deferredPrompt = null;
+        });
+
         let currentView = 'stopwatch';
         let isSoundOn = true;
         let wakeLock = null;
@@ -562,8 +635,7 @@
         let selectedSound = localStorage.getItem('fittimer_sound') || 'beep';
 
         function showCustomAlert(title, message) {
-            document.getElementById('custom-alert-title').innerText = title;
-            document.getElementById('custom-alert-msg').innerText = message;
+            document.getElementById('custom-alert-title').innerText = title; document.getElementById('custom-alert-msg').innerText = message;
             const m = document.getElementById('modal-custom-alert'); const c = document.getElementById('modal-custom-alert-content');
             m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
         }
@@ -573,10 +645,8 @@
         }
         
         function showCustomConfirm(title, message, onYes) {
-            document.getElementById('custom-confirm-title').innerText = title;
-            document.getElementById('custom-confirm-msg').innerText = message;
-            const btnYes = document.getElementById('btn-confirm-yes');
-            btnYes.onclick = () => { closeCustomConfirm(); onYes(); };
+            document.getElementById('custom-confirm-title').innerText = title; document.getElementById('custom-confirm-msg').innerText = message;
+            const btnYes = document.getElementById('btn-confirm-yes'); btnYes.onclick = () => { closeCustomConfirm(); onYes(); };
             const m = document.getElementById('modal-custom-confirm'); const c = document.getElementById('modal-custom-confirm-content');
             m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
         }
@@ -636,15 +706,13 @@
             thumb.style.transition = 'none'; trackFill.style.transition = 'none';
         }
         function onSliderMove(e) {
-            if (!isDraggingSlider) return;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            if (!isDraggingSlider) return; const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             let currentX = clientX - sliderStartX;
             if (currentX < 4) currentX = 4; if (currentX > sliderMaxX) currentX = sliderMaxX;
             thumb.style.left = currentX + 'px'; trackFill.style.width = (currentX + (thumb.offsetWidth / 2)) + 'px';
         }
         function onSliderEnd() {
-            if (!isDraggingSlider) return; isDraggingSlider = false;
-            const currentX = parseInt(thumb.style.left || 4, 10);
+            if (!isDraggingSlider) return; isDraggingSlider = false; const currentX = parseInt(thumb.style.left || 4, 10);
             if (currentX >= sliderMaxX * 0.85) {
                 thumb.style.left = sliderMaxX + 'px'; trackFill.style.width = '100%';
                 setTimeout(() => { lockOverlay.classList.add('opacity-0'); setTimeout(() => { lockOverlay.classList.add('hidden'); resetUnlockSlider(); }, 300); }, 150);
@@ -781,7 +849,6 @@
             return Math.floor((date2 - date1)/(1000*60*60*24));
         }
 
-        // Calcula a ofensiva antiga baseada na array caso userStats seja null
         function calculateOldStreak() {
             const dates = [...new Set(appHistory.map(h => new Date(h.date).toLocaleDateString('pt-BR')))];
             let str = 0; let checkDate = new Date(); let checkStr = checkDate.toLocaleDateString('pt-BR');
@@ -814,7 +881,6 @@
                     else { userStats.streak = 1; userStats.shields = 0; }
                 }
                 userStats.lastTrainDate = today;
-                // Ganha Escudo?
                 if (userStats.streak > 0 && userStats.streak % 5 === 0) { if(userStats.shields < 3) { userStats.shields++; showToast("Você ganhou 1 Escudo de Descanso! 🛡️"); } }
             } else if (userStats.streak === 0) { userStats.streak = 1; userStats.lastTrainDate = today; }
             
@@ -850,9 +916,8 @@
             document.getElementById('hist-streak').innerText = userStats.streak;
             document.getElementById('hist-shields').innerText = userStats.shields;
             
-            // Renderiza Sistema de Nível/XP
             const totalXP = Math.floor(totalMins * 10);
-            const currentLvl = Math.floor(Math.sqrt(totalMins / 10)) + 1; // Formula ajustada: ~10min = lvl2, ~40min = lvl3
+            const currentLvl = Math.floor(Math.sqrt(totalMins / 10)) + 1; 
             const xpForCurrentLvl = Math.pow(currentLvl - 1, 2) * 100;
             const xpForNextLvl = Math.pow(currentLvl, 2) * 100;
             const xpProgress = totalXP - xpForCurrentLvl;
@@ -865,7 +930,6 @@
             document.getElementById('xp-next').innerText = `${xpForNextLvl} XP`;
             document.getElementById('xp-progress').style.width = `${pctXP}%`;
 
-            // Desafio Mensal
             const now = new Date(); const curMonth = now.getMonth(); const curYear = now.getFullYear();
             const monthMins = appHistory.filter(h => { let d = new Date(h.date); return d.getMonth() === curMonth && d.getFullYear() === curYear; }).reduce((a, c) => a + c.duration, 0);
             const goalMins = 300; const monthPct = Math.min(100, (monthMins / goalMins) * 100);
@@ -928,7 +992,10 @@
             });
         }
 
+        // ================= SISTEMA DE COMPARTILHAMENTO E FOTOS =================
         let currentShareData = null;
+        let uploadedBackgroundImage = null;
+
         const shareThemes = {
             'default': { bg: 'bg-slate-900', border: 'border-emerald-500', textMain: 'text-emerald-500', bgInner: 'bg-slate-800/80' },
             'fire': { bg: 'bg-red-950', border: 'border-orange-500', textMain: 'text-orange-400', bgInner: 'bg-red-900/50' },
@@ -936,13 +1003,51 @@
             'zen': { bg: 'bg-cyan-950', border: 'border-cyan-400', textMain: 'text-cyan-300', bgInner: 'bg-cyan-900/50' }
         };
 
+        // Eventos de Upload de Imagem
+        document.getElementById('btn-upload-bg').addEventListener('click', () => {
+            document.getElementById('share-bg-upload').click();
+        });
+
+        document.getElementById('share-bg-upload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadedBackgroundImage = event.target.result;
+                    
+                    // Aplica no mini-preview (modal)
+                    const mini = document.getElementById('mini-share-preview');
+                    mini.style.backgroundImage = `url(${uploadedBackgroundImage})`;
+                    document.getElementById('mini-share-overlay').style.opacity = '0.6'; // Filtro escuro
+                    
+                    // Aplica no cartão gigante (invisível)
+                    const card = document.getElementById('share-card');
+                    card.style.backgroundImage = `url(${uploadedBackgroundImage})`;
+                    document.getElementById('share-card-overlay').style.opacity = '0.6';
+
+                    showToast("Foto aplicada com sucesso!");
+                };
+                reader.readAsDataURL(file); // Converte imagem para string segura
+            }
+        });
+
         function openSharePreview(type, durationMins, details) {
             currentShareData = { type, time: formatTimeSimple(durationMins * 60), details };
             document.getElementById('mini-share-time').innerText = currentShareData.time;
-            setShareTheme('default'); // reset theme
+            
+            // Reseta a foto anterior se houver
+            uploadedBackgroundImage = null;
+            document.getElementById('share-bg-upload').value = '';
+            document.getElementById('mini-share-preview').style.backgroundImage = 'none';
+            document.getElementById('share-card').style.backgroundImage = 'none';
+            document.getElementById('mini-share-overlay').style.opacity = '0';
+            document.getElementById('share-card-overlay').style.opacity = '0';
+
+            setShareTheme('default'); // reseta cores
             const m = document.getElementById('modal-share-options'); const c = document.getElementById('modal-share-options-content');
             m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
         }
+
         function closeShareModal() {
             const m = document.getElementById('modal-share-options'); const c = document.getElementById('modal-share-options-content');
             m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300);
@@ -951,21 +1056,20 @@
         function setShareTheme(themeKey) {
             const t = shareThemes[themeKey];
             const mini = document.getElementById('mini-share-preview'); const icon = document.getElementById('mini-share-icon');
-            // Reset classes (simple regex replace is safer if we know prefixes)
-            mini.className = `w-full h-32 rounded-xl border-4 flex flex-col items-center justify-center mb-5 transition-colors ${t.bg} ${t.border}`;
-            icon.className = `fa-solid fa-bolt text-3xl mb-2 ${t.textMain}`;
             
-            // Prepara o card real invisivel
+            mini.className = `w-full h-32 rounded-xl border-4 flex flex-col items-center justify-center mb-4 transition-colors relative overflow-hidden bg-cover bg-center ${t.bg} ${t.border}`;
+            icon.className = `fa-solid fa-bolt text-3xl mb-2 z-10 ${t.textMain}`;
+            
             const card = document.getElementById('share-card'); const inner = document.getElementById('share-type'); const mainText = card.querySelector('.share-text-theme');
-            card.className = `w-[600px] h-[800px] flex flex-col justify-between items-center p-12 rounded-3xl border-8 transition-colors ${t.bg} ${t.border}`;
-            inner.className = `border-2 border-slate-700/50 px-8 py-3 rounded-2xl text-3xl text-white font-bold mb-3 backdrop-blur-sm ${t.bgInner}`;
-            mainText.className = `text-6xl font-black mb-2 share-text-theme ${t.textMain}`;
+            card.className = `w-[1080px] h-[1920px] flex flex-col justify-between items-center p-20 border-[24px] transition-colors relative bg-cover bg-center ${t.bg} ${t.border}`;
+            inner.className = `border-4 border-white/20 px-16 py-8 rounded-[40px] text-6xl text-white font-bold mb-8 backdrop-blur-md shadow-2xl ${t.bgInner}`;
+            mainText.className = `text-[110px] font-black mb-4 share-text-theme z-10 ${t.textMain}`;
         }
 
         async function executeShareImage() {
-            const btn = document.getElementById('btn-execute-share'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'; btn.disabled = true;
+            const btn = document.getElementById('btn-execute-share'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...'; btn.disabled = true;
             
-            // Popula os dados reais
+            // Popula os dados reais no card 1080x1920
             document.getElementById('share-time').innerText = currentShareData.time;
             document.getElementById('share-type').innerText = currentShareData.type;
             const detSpan = document.getElementById('share-details');
@@ -974,10 +1078,10 @@
             document.getElementById('share-date').innerText = new Date().toLocaleDateString('pt-BR');
             
             const card = document.getElementById('share-card'); const container = document.getElementById('share-card-container');
-            container.classList.remove('-left-[4000px]'); container.style.opacity = '1'; // traz para view para renderizar, mas opacidade esconde bugs
+            container.classList.remove('-left-[4000px]'); container.style.opacity = '1';
             
             try {
-                const canvas = await html2canvas(card, { backgroundColor: null, scale: 2 });
+                const canvas = await html2canvas(card, { backgroundColor: null, scale: 1, useCORS: true });
                 container.classList.add('-left-[4000px]'); container.style.opacity = '0';
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "fittimer-treino.png", { type: "image/png" });
@@ -1026,10 +1130,6 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
-
-        function formatTimeSW(timeInMs) { let date = new Date(timeInMs); let m = date.getUTCMinutes().toString().padStart(2, '0'); let s = date.getUTCSeconds().toString().padStart(2, '0'); let ms = Math.floor(date.getUTCMilliseconds() / 10).toString().padStart(2, '0'); return `${m}:${s}<span class="text-4xl text-slate-400">.${ms}</span>`; }
-        function formatTimeSimple(totalSeconds) { let m = Math.floor(totalSeconds / 60).toString().padStart(2, '0'); let s = (totalSeconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; }
-        function updateSvgRing(ringId, timeRemaining, totalTime) { const ring = document.getElementById(ringId); if(ring && totalTime > 0) ring.style.strokeDashoffset = 100 - ((timeRemaining / totalTime) * 100); }
 
         function switchTab(tab) {
             const tabs = ['stopwatch', 'timer', 'interval', 'history']; const currentIndex = tabs.indexOf(currentView); const newIndex = tabs.indexOf(tab); const isForward = newIndex > currentIndex;
