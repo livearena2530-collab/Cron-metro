@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0f172a">
     <title>FitTimer Pro</title>
     
-    <link id="manifest-link" rel="manifest" href="">
+    <link id="manifest-link" rel="manifest" href="./manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -58,7 +58,6 @@
         }
         .animate-pulse-glow { animation: pulse-glow 2s infinite ease-in-out; }
 
-        /* Cores de Fundo HIIT (Soft Backgrounds) */
         .bg-work { background-color: #064e3b !important; transition: background-color 0.5s; }
         .bg-rest { background-color: #450a0a !important; transition: background-color 0.5s; }
         .bg-prep { background-color: #713f12 !important; transition: background-color 0.5s; }
@@ -67,7 +66,6 @@
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; appearance: none; }
 
-        /* Transições do Modo Foco (Tela Cheia) */
         #app-header, #app-nav { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; }
         body.focus-mode #app-header { transform: translateY(-120%); opacity: 0; pointer-events: none; }
         body.focus-mode #app-nav { transform: translateY(120%); opacity: 0; pointer-events: none; }
@@ -119,6 +117,7 @@
 
     <main class="flex-1 w-full overflow-hidden relative">
         
+        <!-- MODO CRONÔMETRO -->
         <section id="view-stopwatch" class="absolute inset-0 flex flex-col items-center justify-between py-6 px-4 transition-all duration-300 transform translate-x-0 opacity-100">
             <div class="flex-1 flex items-center justify-center w-full">
                 <div class="timer-display text-[90px] sm:text-9xl font-semibold text-white text-center w-full" id="sw-display">
@@ -145,25 +144,32 @@
             </div>
         </section>
 
+        <!-- MODO TIMER -->
         <section id="view-timer" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
-            <div class="flex-1 flex justify-center items-center w-full min-h-[260px] shrink-0 mb-4 mt-4">
-                <div class="relative w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] shrink-0">
+            
+            <!-- Reduzido tamanho do SVG e usando min-h menor para caber nas telas mobile sem esmagar -->
+            <div class="flex-1 flex justify-center items-center w-full min-h-[180px] shrink-1 my-2">
+                <div class="relative w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] shrink-0">
                     <svg class="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none">
                         <circle cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="4%" fill="none" class="text-slate-800" />
                         <circle id="tm-progress-ring" cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="4%" fill="none" stroke-linecap="round" class="text-theme transition-all duration-1000 ease-linear" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0" />
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="timer-display text-[80px] sm:text-[90px] font-semibold text-white leading-none mt-2" id="tm-display">05:00</div>
+                        <div class="timer-display text-[70px] sm:text-[90px] font-semibold text-white leading-none mt-2" id="tm-display">
+                            05:00
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="w-full max-w-sm flex flex-col items-center shrink-0 mt-auto pb-4">
-                <div id="tm-presets-wrapper" class="w-full mb-3 transition-opacity duration-300">
+            <div class="w-full max-w-sm flex flex-col items-center shrink-0 mt-auto pb-2">
+                <div id="tm-presets-wrapper" class="w-full mb-3 mt-2 transition-opacity duration-300">
                     <div class="flex items-center justify-between px-2 mb-1">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Segure p/ mover • Clique 2x p/ opções)</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Arraste para mover)</span>
                     </div>
-                    <div id="tm-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1"></div>
+                    <div id="tm-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1">
+                        <!-- Gerados via JS -->
+                    </div>
                 </div>
 
                 <div id="tm-setup" class="flex gap-4 justify-center items-center bg-slate-800/80 backdrop-blur-sm p-4 rounded-2xl border border-slate-700 shadow-lg mb-6 w-full max-w-[250px] transition-all">
@@ -192,30 +198,36 @@
             </div>
         </section>
 
+        <!-- MODO INTERVALADO (HIIT) -->
         <section id="view-interval" class="absolute inset-0 flex flex-col items-center py-4 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
-            <div class="w-full text-center shrink-0 mb-2">
+            
+            <div class="w-full text-center shrink-0 mb-1 mt-2">
                 <div id="int-status" class="text-lg md:text-xl font-bold text-slate-400 uppercase tracking-widest">CONFIGURAÇÃO</div>
                 <div id="int-rounds-display" class="text-xs md:text-sm text-slate-300 font-semibold h-4 mt-0.5"></div>
             </div>
 
-            <div class="flex-1 flex justify-center items-center w-full min-h-[220px] shrink-0 mb-4">
-                <div class="relative w-[220px] h-[220px] sm:w-[260px] sm:h-[260px] shrink-0">
+            <!-- Reduzido também aqui para não esmagar em telas menores -->
+            <div class="flex-1 flex justify-center items-center w-full min-h-[160px] shrink-1 my-2">
+                <div class="relative w-[190px] h-[190px] sm:w-[260px] sm:h-[260px] shrink-0">
                     <svg class="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none">
                         <circle cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="3%" fill="none" class="text-slate-800" />
                         <circle id="int-progress-ring" cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="3%" fill="none" stroke-linecap="round" class="text-theme transition-all duration-1000 ease-linear" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0" />
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <span id="int-display" class="timer-display text-7xl sm:text-[90px] font-semibold text-white leading-none mt-2 drop-shadow-lg">00:00</span>
+                        <span id="int-display" class="timer-display text-6xl sm:text-[90px] font-semibold text-white leading-none mt-2 drop-shadow-lg">00:00</span>
                     </div>
                 </div>
             </div>
 
             <div class="w-full max-w-md shrink-0 flex flex-col items-center mt-auto pb-2">
-                <div id="int-presets-wrapper" class="w-full mb-3">
+                
+                <div id="int-presets-wrapper" class="w-full mb-3 mt-2">
                     <div class="flex items-center justify-between px-2 mb-1">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Segure p/ mover • Clique 2x p/ opções)</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Arraste para mover)</span>
                     </div>
-                    <div id="int-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1"></div>
+                    <div id="int-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1">
+                        <!-- Gerados via JS -->
+                    </div>
                 </div>
 
                 <div id="int-setup" class="w-full bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl border border-slate-700 shadow-lg transition-all duration-300 mb-4">
@@ -267,7 +279,9 @@
             </div>
         </section>
 
+        <!-- MODO HISTÓRICO -->
         <section id="view-history" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
+            
             <div class="w-full flex justify-between items-start mb-6">
                 <div class="flex items-center gap-3 w-full">
                     <div class="relative w-16 h-16 rounded-full bg-slate-800 border-[3px] border-theme flex items-center justify-center shadow-[0_0_15px_var(--theme-dark)] shrink-0">
@@ -338,34 +352,36 @@
             </div>
         </section>
 
+        <!-- CARD COMPARTILHAMENTO INVISÍVEL -->
         <div id="share-card-container" class="fixed -left-[4000px] top-0 pointer-events-none">
-            <div id="share-card" class="w-[1080px] h-[1920px] bg-slate-900 flex flex-col justify-between items-center p-20 border-[24px] border-emerald-500 transition-colors bg-cover bg-center relative">
+            <div id="share-card" class="w-[600px] h-[800px] bg-slate-900 flex flex-col justify-between items-center p-12 rounded-3xl border-8 transition-colors bg-cover bg-center relative overflow-hidden">
                 <div id="share-card-overlay" class="absolute inset-0 bg-slate-900 opacity-0 z-0"></div>
 
-                <div class="text-center mt-20 z-10">
-                    <h1 class="text-[110px] font-black text-emerald-500 mb-4 share-text-theme"><i class="fa-solid fa-bolt"></i> FitTimer Pro</h1>
-                    <p class="text-5xl text-white font-bold tracking-widest uppercase opacity-90 drop-shadow-lg" id="share-header-subtitle">Treino Concluído</p>
+                <div class="text-center mt-6 z-10">
+                    <h1 class="text-6xl font-black text-theme mb-2 share-text-theme"><i class="fa-solid fa-bolt"></i> FitTimer Pro</h1>
+                    <p class="text-xl text-slate-300 font-semibold tracking-widest uppercase opacity-80" id="share-header-subtitle">Treino Concluído</p>
                 </div>
                 
-                <div class="flex flex-col items-center w-full z-10">
-                    <div class="timer-display text-[320px] font-bold text-white leading-none drop-shadow-2xl mb-8" id="share-time" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">00:00</div>
-                    <div class="bg-slate-800/80 border-4 border-white/20 px-16 py-8 rounded-[40px] text-6xl text-white font-bold mb-8 backdrop-blur-md shadow-2xl" id="share-type">Treino</div>
-                    <div class="text-4xl text-slate-200 font-mono font-bold px-12 py-6 rounded-2xl bg-black/40 backdrop-blur-sm" id="share-details">--</div>
+                <div class="flex flex-col items-center z-10 w-full">
+                    <div class="timer-display text-[140px] font-bold text-white leading-none shadow-black drop-shadow-2xl mb-2 text-center" id="share-time">00:00</div>
+                    <div class="bg-slate-800/80 border-2 border-slate-700/50 px-8 py-3 rounded-2xl text-3xl text-white font-bold mb-3 backdrop-blur-sm" id="share-type">Treino</div>
+                    <div class="text-lg text-slate-300 font-mono font-bold px-6 py-2 rounded-lg bg-black/40 backdrop-blur-sm w-full text-center truncate" id="share-details">--</div>
                 </div>
 
-                <div class="w-full flex justify-between items-center bg-black/40 p-12 rounded-[40px] border border-white/20 mb-20 backdrop-blur-md shadow-2xl z-10">
-                    <div class="flex items-center gap-6">
-                        <i class="fa-solid fa-fire text-[80px] text-orange-400"></i>
-                        <span class="text-5xl text-white font-bold" id="share-streak">Ofensiva: 0</span>
+                <div class="w-full flex justify-between items-center bg-black/40 p-6 rounded-2xl border border-white/20 mb-6 backdrop-blur-md shadow-lg z-10">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-fire text-4xl text-orange-400"></i>
+                        <span class="text-2xl text-white font-bold" id="share-streak">Ofensiva: 0</span>
                     </div>
-                    <div class="flex items-center gap-6">
-                        <i class="fa-solid fa-calendar-check text-[80px] text-blue-400"></i>
-                        <span class="text-5xl text-white font-bold" id="share-date">12/09</span>
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-calendar-check text-4xl text-blue-400"></i>
+                        <span class="text-2xl text-white font-bold" id="share-date">12/09</span>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- MODAL COMPARTILHAMENTO -->
         <div id="modal-share-options" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-6 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col items-center" id="modal-share-options-content">
                 <h3 class="text-white text-xl font-bold mb-4">Compartilhar Treino</h3>
@@ -381,7 +397,7 @@
                     <i class="fa-solid fa-camera"></i> Usar Foto de Fundo
                 </button>
 
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Escolha as Cores</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Escolha o Tema</p>
                 <div class="flex gap-3 mb-6 w-full justify-center">
                     <button onclick="setShareTheme('default')" class="w-10 h-10 rounded-full bg-slate-900 border-2 border-emerald-500 ring-2 ring-emerald-500/50 shadow-lg focus:outline-none"></button>
                     <button onclick="setShareTheme('fire')" class="w-10 h-10 rounded-full bg-red-950 border-2 border-orange-500 hover:ring-2 ring-orange-500/50 shadow-lg focus:outline-none"></button>
@@ -398,6 +414,7 @@
             </div>
         </div>
 
+        <!-- MODAIS CUSTOM ALERT/CONFIRM -->
         <div id="modal-custom-alert" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[300] flex items-center justify-center hidden opacity-0 transition-opacity duration-200 px-4">
             <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-xs border border-slate-700 shadow-2xl text-center transform scale-95 transition-transform" id="modal-custom-alert-content">
                 <i class="fa-solid fa-circle-info text-4xl text-theme mb-4"></i>
@@ -419,6 +436,7 @@
             </div>
         </div>
 
+        <!-- MODAL SALVAR PRESET -->
         <div id="modal-save-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-save-preset-content">
                 <h3 class="text-white text-xl font-bold mb-1" id="modal-preset-title">Adicionar Treino</h3>
@@ -431,19 +449,24 @@
             </div>
         </div>
 
+        <!-- MODAL OPÇÕES DO PRESET -->
         <div id="modal-options-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-4 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-options-preset-content">
                 <h3 class="text-slate-400 text-sm font-semibold text-center mb-4 pb-2 border-b border-slate-700/50 uppercase tracking-widest" id="options-title">Opções</h3>
+                
                 <button onclick="triggerSharePresetLink()" class="w-full py-4 text-emerald-400 text-lg font-semibold bg-emerald-900/30 border border-emerald-800/50 rounded-xl mb-3 flex items-center justify-center gap-3 transition hover:bg-emerald-800/50">
                     <i class="fa-solid fa-link"></i> Compartilhar Link
                 </button>
+                
                 <button onclick="triggerEditPreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-3 flex items-center justify-center gap-3 transition">
                     <i class="fa-solid fa-pen text-blue-400"></i> Renomear
                 </button>
+                
                 <button onclick="triggerDeletePreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-4 flex items-center justify-center gap-3 transition">
                     <i class="fa-solid fa-trash text-red-400"></i> Excluir Favorito
                 </button>
-                <button onclick="closeOptionsModal()" class="w-full py-4 text-slate-300 text-lg font-bold bg-slate-900 rounded-xl border border-slate-700 transition">Cancelar</button>
+                
+                <button onclick="closeOptionsModal()" class="w-full py-4 text-slate-300 text-lg font-bold bg-slate-900 rounded-xl border border-slate-700 transition hover:bg-slate-700">Cancelar</button>
             </div>
         </div>
 
@@ -1013,6 +1036,7 @@
             const m = document.getElementById('modal-share-options'); const c = document.getElementById('modal-share-options-content');
             m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
         }
+
         function closeShareModal() {
             const m = document.getElementById('modal-share-options'); const c = document.getElementById('modal-share-options-content');
             m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300);
@@ -1060,14 +1084,77 @@
             } catch(e) { container.classList.add('-left-[4000px]'); btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Enviar'; btn.disabled = false; }
         }
 
+        // ==========================================
+        // FUNÇÕES DO MENU DE OPÇÕES DO PRESET
+        // ==========================================
+
+        function openOptionsModal(id, name, context) {
+            if (intIsRunning || tmIsRunning) return;
+            selectedOptionsPresetId = id;
+            presetContext = context;
+            document.getElementById('options-title').innerText = name;
+            const m = document.getElementById('modal-options-preset');
+            const c = document.getElementById('modal-options-preset-content');
+            m.classList.remove('hidden'); void m.offsetWidth;
+            m.classList.remove('opacity-0'); c.classList.remove('scale-95');
+        }
+
+        function closeOptionsModal() {
+            const m = document.getElementById('modal-options-preset');
+            const c = document.getElementById('modal-options-preset-content');
+            m.classList.add('opacity-0');
+            c.classList.add('scale-95');
+            setTimeout(() => m.classList.add('hidden'), 300);
+        }
+
+        function triggerEditPreset() {
+            closeOptionsModal();
+            setTimeout(() => {
+                openModalPreset(selectedOptionsPresetId);
+            }, 300);
+        }
+
+        function triggerDeletePreset() {
+            closeOptionsModal();
+            setTimeout(() => {
+                showCustomConfirm("Excluir Treino?", "Tem certeza que deseja apagar este favorito permanentemente?", () => {
+                    deletePreset(selectedOptionsPresetId);
+                    showToast("Treino excluído com sucesso!");
+                });
+            }, 300);
+        }
+
         function triggerSharePresetLink() {
-            closeOptionsModal(); let dataToShare;
-            if (presetContext === 'timer') { const p = tmPresets.find(x => x.id === selectedOptionsPresetId); if(!p) return; dataToShare = { type: 'timer', n: p.name, sec: p.sec }; } 
-            else { const p = myPresets.find(x => x.id === selectedOptionsPresetId); if(!p) return; dataToShare = { type: 'hiit', n: p.name, w: p.work, r: p.rest, ro: p.rounds, wu: p.warmup }; }
-            const jsonStr = JSON.stringify(dataToShare); const b64 = btoa(encodeURIComponent(jsonStr));
+            closeOptionsModal();
+            let dataToShare;
+            if (presetContext === 'timer') {
+                const p = tmPresets.find(x => x.id === selectedOptionsPresetId);
+                if(!p) return;
+                dataToShare = { type: 'timer', n: p.name, sec: p.sec };
+            } else {
+                const p = myPresets.find(x => x.id === selectedOptionsPresetId);
+                if(!p) return;
+                dataToShare = { type: 'hiit', n: p.name, w: p.work, r: p.rest, ro: p.rounds, wu: p.warmup };
+            }
+            const jsonStr = JSON.stringify(dataToShare);
+            const b64 = btoa(encodeURIComponent(jsonStr));
             const shareUrl = window.location.origin + window.location.pathname + "?p=" + b64;
-            if(navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(shareUrl).then(() => showToast("Link copiado pro teclado!")).catch(fallbackCopy); } else { fallbackCopy(); }
-            function fallbackCopy() { const ta = document.createElement('textarea'); ta.value = shareUrl; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("Link copiado!"); }
+            
+            if(navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(() => showToast("Link copiado pro teclado!")).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+            
+            function fallbackCopy() {
+                const ta = document.createElement('textarea');
+                ta.value = shareUrl;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast("Link copiado!");
+            }
         }
 
         function checkSharedLinkOnLoad() {
@@ -1116,7 +1203,6 @@
 
         function swUpdateDisplay() { swDisplay.innerHTML = formatTimeSW(swElapsedTime); }
         function swStartPause() {
-            initAudio();
             if (swIsRunning) {
                 clearInterval(swInterval); swIsRunning = false; releaseWakeLock(); setFocusMode(false);
                 swBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); swIconStartPause.classList.replace('fa-pause', 'fa-play'); swIconResetLap.classList.replace('fa-flag', 'fa-rotate-left');
@@ -1124,6 +1210,7 @@
                 swStartTime = Date.now() - swElapsedTime; swInterval = setInterval(() => { swElapsedTime = Date.now() - swStartTime; swUpdateDisplay(); }, 10);
                 swIsRunning = true; requestWakeLock(); setFocusMode(true);
                 swBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); swIconStartPause.classList.replace('fa-play', 'fa-pause'); swIconResetLap.classList.replace('fa-rotate-left', 'fa-flag');
+                if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             }
         }
         function swResetOrLap() {
@@ -1152,10 +1239,33 @@
             const container = document.getElementById('tm-presets'); container.innerHTML = '';
             tmPresets.forEach(p => {
                 const isActive = (p.id === currentActiveTmPresetId);
-                const btn = document.createElement('button');
-                btn.className = isActive ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation' : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation';
-                btn.innerText = p.name; btn.dataset.id = p.id;
-                btn.onclick = (e) => { e.preventDefault(); if (isActive) { if(navigator.vibrate) navigator.vibrate(50); openOptionsModal(p.id, p.name, 'timer'); } else { currentActiveTmPresetId = p.id; localStorage.setItem('fittimer_activeTmPreset', p.id); setTmPreset(p.sec); renderTmPresets(); } };
+                const btn = document.createElement('div');
+                btn.className = isActive 
+                    ? 'h-10 flex bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center select-none touch-manipulation overflow-hidden' 
+                    : 'h-10 flex bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center cursor-pointer select-none touch-manipulation overflow-hidden';
+                
+                const nameSpan = document.createElement('div');
+                nameSpan.className = isActive ? 'px-4 flex items-center justify-center h-full cursor-pointer' : 'px-4 flex items-center justify-center h-full w-full cursor-pointer';
+                nameSpan.innerText = p.name;
+                nameSpan.onclick = (e) => { 
+                    if (!isActive) { 
+                        currentActiveTmPresetId = p.id; localStorage.setItem('fittimer_activeTmPreset', p.id); 
+                        setTmPreset(p.sec); renderTmPresets(); 
+                    } 
+                };
+                btn.appendChild(nameSpan);
+
+                if (isActive) {
+                    const optSpan = document.createElement('div');
+                    optSpan.className = 'px-3 flex items-center justify-center border-l border-white/30 hover:bg-white/10 transition-colors h-full cursor-pointer no-drag';
+                    optSpan.innerHTML = '<i class="fa-solid fa-ellipsis-vertical pointer-events-none"></i>';
+                    optSpan.onclick = (e) => { 
+                        e.preventDefault(); e.stopPropagation(); 
+                        openOptionsModal(p.id, p.name, 'timer'); 
+                    };
+                    btn.appendChild(optSpan);
+                }
+                
                 container.appendChild(btn);
             });
             const addBtn = document.createElement('button'); addBtn.onclick = () => { presetContext = 'timer'; openModalPreset(); };
@@ -1174,11 +1284,11 @@
         ['input', 'blur'].forEach(evt => { tmInputMin.addEventListener(evt, handleTmManualInput); tmInputSec.addEventListener(evt, handleTmManualInput); });
 
         function tmStartPause() {
-            initAudio();
             if (tmIsRunning) { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); setFocusMode(false); tmBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); tmIconStartPause.classList.replace('fa-pause', 'fa-play'); tmSetup.classList.remove('hidden'); } 
             else {
                 if(tmTimeRemaining === 0) updateTmDisplayFromInputs(); if(tmTimeRemaining === 0) return;
                 tmSetup.classList.add('hidden'); document.getElementById('tm-presets-wrapper').classList.add('hidden');
+                initAudio();
                 tmInterval = setInterval(() => {
                     tmTimeRemaining--; tmDisplay.innerHTML = formatTimeSimple(tmTimeRemaining); updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds);
                     if (tmTimeRemaining === Math.floor(tmTotalSeconds / 2) && tmTotalSeconds >= 20) speakVoiceCoach("Metade do tempo!"); else if (tmTimeRemaining === 10 && tmTotalSeconds >= 15) speakVoiceCoach("Dez segundos!"); else if (tmTimeRemaining === 3) speakVoiceCoach("Três"); else if (tmTimeRemaining === 2) speakVoiceCoach("Dois"); else if (tmTimeRemaining === 1) speakVoiceCoach("Um"); else if (tmTimeRemaining <= 3 && tmTimeRemaining > 0) playBeep('short');
@@ -1201,11 +1311,35 @@
 
         function renderPresets() {
             const container = document.getElementById('int-presets'); container.innerHTML = '';
+            
             myPresets.forEach(p => {
                 const isActive = (p.id === currentActivePresetId);
-                const btn = document.createElement('button'); btn.className = isActive ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation' : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation';
-                btn.innerText = p.name; btn.dataset.id = p.id;
-                btn.onclick = (e) => { e.preventDefault(); if (isActive) { if(navigator.vibrate) navigator.vibrate(50); openOptionsModal(p.id, p.name, 'hiit'); } else { currentActivePresetId = p.id; localStorage.setItem('fittimer_activePreset', p.id); setHiitPreset(p.work, p.rest, p.rounds, p.warmup || 0); renderPresets(); } };
+                const btn = document.createElement('div');
+                btn.className = isActive 
+                    ? 'h-10 flex bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center select-none touch-manipulation overflow-hidden' 
+                    : 'h-10 flex bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center cursor-pointer select-none touch-manipulation overflow-hidden';
+                
+                const nameSpan = document.createElement('div');
+                nameSpan.className = isActive ? 'px-4 flex items-center justify-center h-full cursor-pointer' : 'px-4 flex items-center justify-center h-full w-full cursor-pointer';
+                nameSpan.innerText = p.name;
+                nameSpan.onclick = (e) => { 
+                    if (!isActive) { 
+                        currentActivePresetId = p.id; localStorage.setItem('fittimer_activePreset', p.id); 
+                        setHiitPreset(p.work, p.rest, p.rounds, p.warmup || 0); renderPresets(); 
+                    } 
+                };
+                btn.appendChild(nameSpan);
+
+                if (isActive) {
+                    const optSpan = document.createElement('div');
+                    optSpan.className = 'px-3 flex items-center justify-center border-l border-white/30 hover:bg-white/10 transition-colors h-full cursor-pointer no-drag';
+                    optSpan.innerHTML = '<i class="fa-solid fa-ellipsis-vertical pointer-events-none"></i>';
+                    optSpan.onclick = (e) => { 
+                        e.preventDefault(); e.stopPropagation(); 
+                        openOptionsModal(p.id, p.name, 'hiit'); 
+                    };
+                    btn.appendChild(optSpan);
+                }
                 container.appendChild(btn);
             });
             const addBtn = document.createElement('button'); addBtn.onclick = () => { presetContext = 'hiit'; openModalPreset(); };
@@ -1216,9 +1350,15 @@
         function initSortablePresets() {
             if (typeof Sortable === 'undefined') return;
             const tmContainer = document.getElementById('tm-presets');
-            if (tmContainer) new Sortable(tmContainer, { animation: 150, delay: 300, delayOnTouchOnly: true, filter: ".non-draggable", onEnd: function (evt) { if (evt.oldIndex === evt.newIndex) return; const item = tmPresets.splice(evt.oldIndex, 1)[0]; tmPresets.splice(evt.newIndex, 0, item); localStorage.setItem(STORAGE_TM_PRESETS_KEY, JSON.stringify(tmPresets)); } });
+            if (tmContainer) new Sortable(tmContainer, { 
+                animation: 150, delay: 300, delayOnTouchOnly: true, filter: ".non-draggable, .no-drag", 
+                onEnd: function (evt) { if (evt.oldIndex === evt.newIndex) return; const item = tmPresets.splice(evt.oldIndex, 1)[0]; tmPresets.splice(evt.newIndex, 0, item); localStorage.setItem(STORAGE_TM_PRESETS_KEY, JSON.stringify(tmPresets)); } 
+            });
             const intContainer = document.getElementById('int-presets');
-            if (intContainer) new Sortable(intContainer, { animation: 150, delay: 300, delayOnTouchOnly: true, filter: ".non-draggable", onEnd: function (evt) { if (evt.oldIndex === evt.newIndex) return; const item = myPresets.splice(evt.oldIndex, 1)[0]; myPresets.splice(evt.newIndex, 0, item); localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets)); } });
+            if (intContainer) new Sortable(intContainer, { 
+                animation: 150, delay: 300, delayOnTouchOnly: true, filter: ".non-draggable, .no-drag", 
+                onEnd: function (evt) { if (evt.oldIndex === evt.newIndex) return; const item = myPresets.splice(evt.oldIndex, 1)[0]; myPresets.splice(evt.newIndex, 0, item); localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets)); } 
+            });
         }
 
         function saveLastConfigOffline() { const config = { work: (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0), rest: (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0), rounds: document.getElementById('int-input-rounds').value, warmup: (parseInt(document.getElementById('int-warmup-m').value) || 0) * 60 + (parseInt(document.getElementById('int-warmup-s').value) || 0) }; localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(config)); }
@@ -1258,7 +1398,6 @@
         function updateIntBgColor() { if (currentView !== 'interval') return; bodyBg.className = 'flex flex-col h-[100dvh] w-full transition-colors duration-500'; if (intState === 'prep' || intState === 'warmup') bodyBg.classList.add('bg-prep'); else if (intState === 'work') bodyBg.classList.add('bg-work'); else if (intState === 'rest') bodyBg.classList.add('bg-rest'); else bodyBg.classList.add('bg-slate-900'); }
 
         function intStartPause() {
-            initAudio();
             if (intIsRunning) {
                 clearInterval(intInterval); intIsRunning = false; releaseWakeLock(); setFocusMode(false);
                 intBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); intIconStartPause.classList.replace('fa-pause', 'fa-play');
@@ -1273,6 +1412,7 @@
                     intWorkSec = (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0); intRestSec = (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0); intTotalRounds = parseInt(document.getElementById('int-input-rounds').value) || 1; 
                 }
                 saveLastConfigOffline(); intSetup.classList.add('hidden'); intPresetsWrapper.classList.add('hidden');
+                initAudio();
                 intUpdateUI(); intInterval = setInterval(intTick, 1000); intIsRunning = true; requestWakeLock(); setFocusMode(true);
                 intBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); intIconStartPause.classList.replace('fa-play', 'fa-pause');
             }
